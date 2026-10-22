@@ -1,12 +1,17 @@
 
-from flask import Flask
+from app import create_app
+from app.extensions import db
 
-app = Flask(__name__)
+from app.models.payment import Payment
+from app.models.rating import Rating
+from app.models.notification import Notification
 
+app = create_app()
 
-@app.route('/')
-def index():
-    return "Hello Shuttler"
+with app.app_context():
+    print("creating tables.......")
+    db.create_all()
+    print("success creating tables")
 
 
 if __name__ == '__main__':
