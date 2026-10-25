@@ -2,9 +2,7 @@
 from app import create_app
 from app.extensions import db
 
-from app.models.payment import Payment
-from app.models.rating import Rating
-from app.models.notification import Notification
+from app.models import Driver, Notification, Payment, Rating, User, Vehicle
 
 app = create_app()
 
