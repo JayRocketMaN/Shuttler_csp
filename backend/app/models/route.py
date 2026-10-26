@@ -1,5 +1,5 @@
 from datetime import datetime
-from app.models import db
+from app.extensions import db
 
 class Route(db.Model):
     __tablename__ = 'routes'

@@ -1,5 +1,6 @@
 from datetime import datetime
-from app.models import db
+from app.extensions import db
+
 
 class Trip(db.Model):
     __tablename__ = 'trips'
