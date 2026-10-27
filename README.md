@@ -51,7 +51,7 @@
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Layer | Library / Technology |
 |---|---|
@@ -67,3 +67,78 @@
 ---
 
 ## Project Structure
+Shuttler_cs/
+├── backend/
+│   ├── app/
+│   │   ├── models/            # SQLAlchemy database models
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py
+│   │   │   ├── driver.py
+│   │   │   ├── vehicle.py
+│   │   │   ├── route.py
+│   │   │   ├── bus_stop.py
+│   │   │   ├── trip.py
+│   │   │   ├── payment.py
+│   │   │   ├── rating.py
+│   │   │   ├── notification.py
+│   │   │   └── location.py
+│   │   ├── routers/           # Modular API Blueprints
+│   │   │   ├── __init__.py
+│   │   │   └── route.py       # Route endpoint blueprint
+│   │   ├── __init__.py        # Application factory (create_app)
+│   │   └── extensions.py      # Extension instances (db, migrate)
+│   ├── migrations/            # Alembic schema version tracking
+│   ├── requirements.txt       # Python dependencies
+│   └── run.py                 # Application entry point
+├── .env                       # Local environment configuration (gitignored)
+├── docker-compose.yml         # Container configuration for PostgreSQL
+└── README.md                  # Project documentation
+
+
+Quick Start
+1. Prerequisites
+Python 3.13+
+
+Docker Desktop
+
+Git
+
+2. Configure Environment Variables
+Create a .env file in the project root:
+
+Code snippet
+POSTGRES_USER=shuttler_user
+POSTGRES_PASSWORD=shuttler_pass
+POSTGRES_DB=shuttler_db
+POSTGRES_PORT=5432
+SECRET_KEY=your_secure_flask_secret_key
+DATABASE_URL=postgresql+psycopg://shuttler_user:shuttler_pass@localhost:5432/shuttler_db
+PAYSTACK_SECRET_KEY=sk_test_your_paystack_secret_key
+PAYSTACK_PUBLIC_KEY=pk_test_your_paystack_public_key
+3. Spin Up Database Container
+Start the PostgreSQL database service via Docker Compose:
+
+Bash
+docker compose up -d
+4. Set Up Python Virtual Environment
+Navigate into the backend directory, initialize your virtual environment, and install requirements:
+
+Bash
+cd backend
+python -m venv venv
+
+# Activate virtual environment (Windows PowerShell)
+.\venv\Scripts\Activate.ps1
+
+# Install dependencies
+pip install -r requirements.txt
+5. Run Database Migrations
+Apply Alembic migrations to create all database tables:
+
+Bash
+flask db upgrade
+6. Run the Application
+Start the Flask development server:
+
+Bash
+python run.py
