@@ -1,0 +1,25 @@
+# Environment variables
+.env
+backend/.env
+
+# Python Virtual Environments
+venv/
+env/
+ENV/
+backend/venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+migrations/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+.DS_Store
