@@ -15,6 +15,10 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
+    from app.routes.notifications import notifications
+
+    app.register_blueprint(notifications, url_prefix='/notifications')
+
     # Import models here so Alembic registers them during schema generation
     with app.app_context():
         from app import models
