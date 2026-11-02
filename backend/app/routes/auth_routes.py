@@ -4,6 +4,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt
 from app.extensions import db
 from app.models.user import User
 from app.models.driver import Driver
+from app.utils.decorators import role_required
 
 auth_bp = Blueprint('auth', __name__, url_prefix = '/api/v1/auth')
 
@@ -65,27 +66,28 @@ def login():
 
     phone = data.get('phone')
     password = data.get('password')
-    role = data.get('role', 'user') 
+    # role = data.get('role', 'user') 
 
-    # searchx for the user based on the role they occupy
-    if role == 'driver':
+    user = User.query.filter_by(phone = phone).first()
+
+    if not user:  # checking user in driver table if not found in User table
         user = Driver.query.filter_by(phone = phone).first()
-
-    else:  # both user n admin stored in the user table
-        user = User.query.filter_by(phone = phone).first()
 
     if not user:
         return jsonify({
-            "error": "Invalid phone number or password"
+            "error": "invalid phone number or password"
         }), 401
 
-    if not user.check_password(password):
+
+    if not user.check_password(password):  # password
         return jsonify({
             "error": "Invalid phone number or password"
         }), 401
 
+    actual_role = getattr(user, 'role', 'driver')
+
     additional_claims = {
-        "role": role,
+        "role": actual_role,
         'full_name': user.full_name
     }
 
@@ -97,8 +99,9 @@ def login():
     return jsonify({
         "message": "Login successful",
         "access_token": access_token,
-        "role": role
+        "role": actual_role
     }), 200
+
 
 @auth_bp.route('/profile', methods = ['GET'])
 @jwt_required()
@@ -119,6 +122,14 @@ def get_profile():
         "email": user.email,
         "phone": user.phone,
         "role": user.role
+    }), 200
+
+
+@auth_bp.route('/test-admin', methods = ['GET'])
+@role_required('admin') # only someone with admin role can access this
+def test_admin_route():
+    return jsonify({
+        "message": "Welcome, Admin, U have passed the role checked"
     }), 200
 
 
