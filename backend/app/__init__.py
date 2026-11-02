@@ -1,7 +1,8 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
-from app.extensions import db, migrate
+from app.extensions import db, migrate, jwt
+from app.routes.auth_routes import auth_bp
 
 base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 load_dotenv(os.path.join(base_dir, '.env'))
@@ -21,9 +22,12 @@ def create_app():
 
     db.init_app(app)
     migrate.init_app(app, db)
+    jwt.init_app(app)
+
+    app.register_blueprint(auth_bp)
 
     # Import models here so Alembic registers them during schema generation
-    with app.app_context():
-        from app import models
+    # with app.app_context():
+    #     from app import models
 
     return app
