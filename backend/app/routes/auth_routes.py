@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt
 
 from app.extensions import db
 from app.models.user import User
@@ -21,6 +21,7 @@ def register():
     email = data.get('email')
     role = data.get('role', 'user') # our default role
 
+    # checking if user exist by phone or email in db
     user_exist_phone = User.query.filter_by(phone = phone).first()
     user_exist_email = User.query.filter_by(email = email).first()
 
@@ -99,14 +100,37 @@ def login():
         "role": role
     }), 200
 
+@auth_bp.route('/profile', methods = ['GET'])
+@jwt_required()
+def get_profile():
+    claims = get_jwt()
+    user_id = claims.get('sub')
+
+    user = User.query.get(user_id)
+
+    if not user:
+        return jsonify({
+            "error": "no user found"
+        }), 400
+
+    return jsonify({
+        "id": user.id,
+        "full_name": user.full_name,
+        "email": user.email,
+        "phone": user.phone,
+        "role": user.role
+    }), 200
 
 
+# ==== TODO (After main Logic of app has been implemented) =======
+# 0. making use of uuid, for now i'm using id
+# 1. Set strong password validation rules after we have finished with the main functions of the project
+# 2. OTP verification
+# 3. Logout
+# 4. Rate Limiting
+# 5. Token refresh
 
 
 
     
-
-
-
-
 
