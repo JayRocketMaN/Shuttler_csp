@@ -3,7 +3,6 @@ from flask import Flask
 from dotenv import load_dotenv
 from app.extensions import db, migrate
 
-
 load_dotenv()
 
 def create_app():
@@ -16,5 +15,8 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
 
-    return app
+    # Import models here so Alembic registers them during schema generation
+    with app.app_context():
+        from app import models
 
+    return app
