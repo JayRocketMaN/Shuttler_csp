@@ -1,12 +1,12 @@
 
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app.services.booking_service import create_new_booking
+from app.services.booking_service import create_new_booking, get_user_bookings
 
 
-booking_bp = Blueprint('booking', __name__, url_prefix='/api/v1/bookings')
+booking_bp = Blueprint('booking', __name__, url_prefix = '/api/v1/bookings')
 
-@booking_bp.route('/', methods=['POST'])
+@booking_bp.route('/', methods = ['POST'])
 @jwt_required()
 def book_trip():
 
@@ -41,5 +41,17 @@ def book_trip():
     }), 201
 
 
-    pass
+@booking_bp.route('/', methods = ['GET'])
+@jwt_required()
+def get_my_bookings():
+    
+    current_user_id = int(get_jwt_identity())
+    
+    my_bookings = get_user_bookings(current_user_id)
+
+    
+    return jsonify({
+        "count": len(my_bookings),
+        "bookings": my_bookings
+    }), 200
 

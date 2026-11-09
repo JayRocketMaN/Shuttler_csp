@@ -52,3 +52,25 @@ def create_new_booking(user_id, data):
 
     return new_booking, None
 
+
+def get_user_bookings(user_id):
+    # all user bookins (newest first)
+    bookings = Booking.query.filter_by(user_id = user_id).order_by(
+        Booking.created_at.desc()
+    ).all()
+    
+    # list of dict to send booking as JSON
+    result = []
+    for booking in bookings:
+        result.append({
+            "id": booking.id,
+            "trip_id": booking.trip_id,
+            "pickup": booking.pickup_location,
+            "dropoff": booking.dropoff_location,
+            "seats": booking.seat_count,
+            "total_amount": str(booking.total_amount),
+            "status": booking.status,
+            "created_at": booking.created_at.isoformat()
+        })
+        
+    return result
