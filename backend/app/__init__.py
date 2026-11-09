@@ -1,22 +1,28 @@
-import os
 from flask import Flask
-from dotenv import load_dotenv
-from app.extensions import db, migrate
+from config import Config
+from app.extensions import db, migrate, jwt
+from app.routes.auth_routes import auth_bp
 
-load_dotenv()
 
 def create_app():
     app = Flask(__name__)
+    app.config.from_object(Config)
 
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'ourSecretKey')
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    if not app.config['SQLALCHEMY_DATABASE_URI']:
+        raise ValueError('No DATABASE_URL in .env file')
 
     db.init_app(app)
     migrate.init_app(app, db)
+    jwt.init_app(app)
+
+    app.register_blueprint(auth_bp)
+
+    from app.routes.notifications import notifications
+
+    app.register_blueprint(notifications, url_prefix='/notifications')
 
     # Import models here so Alembic registers them during schema generation
-    with app.app_context():
-        from app import models
+    # with app.app_context():
+    #     from app import models
 
     return app
