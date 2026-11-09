@@ -10,7 +10,8 @@ class User(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     full_name = db.Column(db.String(120), nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=True, index=True)
+    # email = db.Column(db.String(255), unique=True, nullable=True, index=True)
+    email = db.Column(db.String(255), unique=True, nullable=False, index=True)  # change email nullable to False since we register with email and also filter by email
     phone = db.Column(db.String(30), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
     role = db.Column(db.String(20), nullable=False, default="user")
