@@ -30,7 +30,7 @@ class Trip(db.Model):
             "route_id": self.route_id,
 
             "driver_id": self.driver_id,
-            # "driver_name": self.driver_name.full_name if self.driver else None,
+            "driver_name": self.driver.full_name if self.driver else None,
 
             "vehicle_id": self.vehicle_id,
             "vehicle_plate": self.vehicle.plate_number if self.vehicle else None,  # returns null if driver is deleted
