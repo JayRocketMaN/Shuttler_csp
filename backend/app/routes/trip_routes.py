@@ -27,15 +27,8 @@ def add_trip():
 
     return jsonify({
         "message": "success scheduling trip",
-        
-        "trip": {
-            "id": trip.id,
-            "route_id": trip.route_id,
-            "vehicle_number": trip.vehicle_number,
-            "driver_name": trip.driver_name,
-            "departure_time": trip.departure_time.isoformat(),
-            "status": trip.status
-        }
+
+        "trip": trip.to_dict()
     }), 201
 
 
