@@ -8,6 +8,8 @@ from app.routes.booking_routes import booking_bp
 from app.routes.trip_routes import trip_bp
 from app.routes.vehicle_routes import vehicle_bp
 from app.routes.driver_routes import driver_bp
+from app.routes.bus_stop_routes import bus_stop_bp
+from app.routes.route_routes import route_bp
 
 def create_app():
     app = Flask(__name__)
@@ -27,6 +29,8 @@ def create_app():
     app.register_blueprint(trip_bp)
     app.register_blueprint(vehicle_bp)
     app.register_blueprint(driver_bp)
+    app.register_blueprint(bus_stop_bp)
+    app.register_blueprint(route_bp)
 
     from app.routes.notifications import notifications
 
