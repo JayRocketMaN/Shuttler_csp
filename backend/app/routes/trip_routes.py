@@ -2,7 +2,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from app.utils.decorators import role_required
-from app.services.trip_service import create_new_trip
+from app.services.trip_service import create_new_trip, search_trips
 
 trip_bp = Blueprint('trip', __name__, url_prefix = '/api/v1/trips')
 
@@ -33,5 +33,24 @@ def add_trip():
 
 
 
-    pass
+@trip_bp.route('/search', methods = ['GET'])
+def search_for_trips():
+
+    pickup = request.args.get('pickup')
+    dropoff = request.args.get('dropoff')
+
+    if not pickup or not dropoff:
+        return jsonify({
+            "error": "please provide both 'pickup' and 'dropoff' query parameters locations"
+        }), 400
+
+    trips = search_trips(pickup, dropoff)
+
+    return jsonify({
+        "count": len(trips),
+        "trips": trips
+    }), 200
+
+
+
 
