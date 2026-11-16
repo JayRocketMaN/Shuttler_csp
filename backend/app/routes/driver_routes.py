@@ -11,4 +11,33 @@ driver_bp = Blueprint('driver', __name__, url_prefix = '/api/v1/drivers')
 @role_required('admin')
 def add_driver():
 
+    data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "error": "no data provided"
+        }), 400
+
+    driver, error = create_new_driver(data)
+
+    if error:
+        return jsonify({
+            "error": error
+        }), 400
+
+
+    return jsonify({
+        "message": "success creating driver",
+        "driver": {
+            "id": driver.id,
+            "full_name": driver.full_name,
+            "phone": driver.phone,
+            "license_number": driver.license_number,
+            "vehicle_id": driver.vehicle_id,
+            "status": driver.status
+        }
+    }), 201
+
+    
+
     pass
