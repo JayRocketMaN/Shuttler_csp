@@ -2,10 +2,12 @@ from flask import Flask
 from datetime import timedelta
 from config import Config
 from app.extensions import db, migrate, jwt
+
 from app.routes.auth_routes import auth_bp
 from app.routes.booking_routes import booking_bp
 from app.routes.trip_routes import trip_bp
-
+from app.routes.vehicle_routes import vehicle_bp
+from app.routes.driver_routes import driver_bp
 
 def create_app():
     app = Flask(__name__)
@@ -23,6 +25,8 @@ def create_app():
     app.register_blueprint(auth_bp)
     app.register_blueprint(booking_bp)
     app.register_blueprint(trip_bp)
+    app.register_blueprint(vehicle_bp)
+    app.register_blueprint(driver_bp)
 
     from app.routes.notifications import notifications
 
