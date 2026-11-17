@@ -1,8 +1,13 @@
 
 from datetime import datetime, timedelta
+from sqlalchemy import or_
+from datetime import datetime
+
 from app.extensions import db
+
 from app.models.trip import Trip
-from app.models.route import Route
+from app.models.route import Route, RouteStop
+from app.models.bus_stop import BusStop
 
 
 def create_new_trip(data):   
@@ -70,4 +75,69 @@ def create_new_trip(data):
     return new_trip, None
 
 
+def search_trips(pickup_name, dropoff_name):
 
+    # finding the ids of bust stops that match name
+    pickup_stops = BusStop.query.filter(
+        BusStop.name.ilike(f"%{pickup_name}%")
+    ).all()
+
+    dropoff_stops = BusStop.query.filter(
+        BusStop.name.ilike(f"%{dropoff_name}%")
+    ).all()
+
+    if not pickup_stops or not dropoff_stops:
+        return []                   # no stops found for those names
+
+    pickup_ids = []
+    for stop in pickup_stops:
+        pickup_ids.append(stop.id)
+
+    dropoff_ids = []
+    for stop in dropoff_stops:
+        dropoff_ids.append(stop.id)
+
+    routes_with_pickup = RouteStop.query.filter(   # routes that hv both pickup stop & dropoff stop, or routes that pass through those stops
+        RouteStop.bus_stop_id.in_(pickup_ids)
+    ).all()
+
+    routes_with_dropoff = RouteStop.query.filter(
+        RouteStop.bus_stop_id.in_(dropoff_ids)
+    ).all()
+
+    pickup_route_ids = []         # collectx routes ids 
+    for rs in routes_with_pickup:
+        pickup_route_ids.append(rs.route_id)
+
+    dropoff_route_ids = []
+    for rs in routes_with_dropoff:
+        dropoff_route_ids.append(rs.route_id)
+
+    matching_route_ids = []
+    for route_id in pickup_route_ids:
+        if route_id in dropoff_route_ids:
+
+            if route_id not in matching_route_ids:   # no duplication for ids should be added
+                matching_route_ids.append(route_id)
+
+
+    if not matching_route_ids:
+        return []                    # no route connecting pickof and dropoff query
+
+    now = datetime.utcnow()               # future trips on the routes which the user search
+
+    available_trips = Trip.query.filter(
+        Trip.route_id.in_(matching_route_ids),
+        Trip.departure_time >= now,
+        Trip.status == 'SCHEDULED'
+    ).order_by(Trip.departure_time.asc()).all()
+
+    
+    results = []        # results
+    for trip in available_trips:
+        results.append(trip.to_dict())
+
+    return results
+
+
+    pass
