@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 from app.extensions import db
 from app.models.notification import Notification
 
-notifications = Blueprint("notifications", __name__)
+notifications = Blueprint("notifications", __name__, url_prefix="/notifications")
 
 
 def _serialize_notification(notification):
