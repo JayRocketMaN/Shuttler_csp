@@ -3,7 +3,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from app.extensions import db
 from app.models.notification import Notification
 
-notifications = Blueprint("notifications", __name__)
+notifications = Blueprint("notifications", __name__, url_prefix="/notifications")
 
 
 def _current_user_id():
