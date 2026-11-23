@@ -1,27 +1,32 @@
-
-from app.extensions import db
 from datetime import datetime
 
+from app.extensions import db
+
+
+# Stores a notification that can be listed, read, or deleted by its recipient.
 class Notification(db.Model):
     __tablename__ = 'notifications'
 
-    id = db.Column(db.Integer, primary_key = True)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    message = db.Column(db.Text, nullable=False)
+    type = db.Column(db.String(50), default='system')
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    user_id = db.Column(db.Integer, nullable = False)  # the person receiving the notification
-
-    title = db.Column(db.String(100), nullable = False)
-    message = db.Column(db.Text, nullable = False)
-
-    type = db.Column(db.String(50), default = 'system') # the type of notification can be: booking, payment, trip_update or system
-
-    is_read = db.Column(db.Boolean, default = False)
-
-    created_at = db.Column(db.DateTime, default = datetime.utcnow)
-
+    # Returns a concise description of this notification.
     def __repr__(self):
-        return f"<Notification {self.title} for User {self.user_id}>"
-      
+        return f'<Notification {self.title} for User {self.user_id}>'
 
-
-
-
+    # Returns this notification with JSON-safe values.
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'title': self.title,
+            'message': self.message,
+            'type': self.type,
+            'is_read': self.is_read,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }

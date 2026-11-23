@@ -1,6 +1,9 @@
 from datetime import datetime
+
 from app.extensions import db
 
+
+# Stores a service address with its map coordinates.
 class Location(db.Model):
     __tablename__ = 'locations'
 
@@ -10,14 +13,16 @@ class Location(db.Model):
     longitude = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # Returns a concise description of this address record.
     def __repr__(self):
-        return f"<Location id={self.id}, address='{self.address}'>"
+        return f'<Location id={self.id}, address=\'{self.address}\'>'
 
+    # Returns this address record with JSON-safe values.
     def to_dict(self):
         return {
-            "id": self.id,
-            "address": self.address,
-            "latitude": self.latitude,
-            "longitude": self.longitude,
-            "created_at": self.created_at.isoformat() if self.created_at else None
+            'id': self.id,
+            'address': self.address,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
         }
