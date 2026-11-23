@@ -1,6 +1,9 @@
 from datetime import datetime
+
 from app.extensions import db
 
+
+# Stores a named bus stop and its location details.
 class BusStop(db.Model):
     __tablename__ = 'bus_stops'
 
@@ -12,16 +15,18 @@ class BusStop(db.Model):
     is_active = db.Column(db.Boolean, default=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    # Returns a concise description of this bus stop.
     def __repr__(self):
-        return f"<BusStop id={self.id}, name='{self.name}'>"
+        return f'<BusStop id={self.id}, name=\'{self.name}\'>'
 
+    # Returns this bus stop with JSON-safe values.
     def to_dict(self):
         return {
-            "id": self.id,
-            "name": self.name,
-            "address": self.address,
-            "latitude": self.latitude,
-            "longitude": self.longitude,
-            "is_active": self.is_active,
-            "created_at": self.created_at.isoformat() if self.created_at else None
+            'id': self.id,
+            'name': self.name,
+            'address': self.address,
+            'latitude': self.latitude,
+            'longitude': self.longitude,
+            'is_active': self.is_active,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
         }
