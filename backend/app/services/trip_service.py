@@ -159,12 +159,17 @@ def update_trip_details(trip_id, data):
         return None, 'trip not found'
 
     if 'status' in data:
+        new_status = data['status']
+
+        if isinstance(new_status, dict):      # extracting status string frm dict
+            new_status = new_status.get('status')
+
         allowed_statuses = ['SCHEDULED', 'CANCELLED', 'COMPLETED', 'IN_PROGRESS']
 
-        if data['status'] not in allowed_statuses:
-            return None, f"invalid status. Must be one of: {', '.join(allowed_statuses) }"
+        if new_status not in allowed_statuses:
+            return None, f"invalid status, let it be one of: {', '.join(allowed_statuses) }"
 
-        trip.status = data
+        trip.status = new_status
 
     # handling possible update conflict, incase driver or vehicle was already assined at the same time
     new_driver_id = data.get('driver_id', trip.driver_id)
