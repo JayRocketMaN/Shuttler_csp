@@ -2,7 +2,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from app.utils.decorators import role_required
-from app.services.trip_service import create_new_trip, search_trips, get_all_trips, update_trip_status, delete_trip
+from app.services.trip_service import create_new_trip, search_trips, get_all_trips, update_trip_details, delete_trip
 
 trip_bp = Blueprint('trip', __name__, url_prefix = '/api/v1/trips')
 
@@ -64,20 +64,19 @@ def get_trips():
     }), 200
 
 
-@trip_bp.route('/<int:trip_id>/status', methods = ['PATCH'])
+@trip_bp.route('/<int:trip_id>', methods = ['PATCH'])
 @jwt_required()
 @role_required('admin')
 def update_status(trip_id):
 
     data = request.get_json()
-    new_status = data.get('status') if data else None
-
-    if not new_status:
+    if not data:
         return jsonify({
-            "error": "status is needed"
+            "error": "no update data provided"
         }), 400
 
-    trip, error = update_trip_status(trip_id, new_status)
+
+    trip, error = update_trip_details(trip_id, data)
 
     if error:
         return jsonify({
@@ -85,7 +84,7 @@ def update_status(trip_id):
         }), 404 if "not found" in error else 400
 
     return jsonify({
-        "message": "success updating trip status",
+        "message": "success updating trip",
         "trip": trip.to_dict()
     }), 200
 
