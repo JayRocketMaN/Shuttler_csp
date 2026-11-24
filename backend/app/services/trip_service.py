@@ -140,4 +140,56 @@ def search_trips(pickup_name, dropoff_name):
     return results
 
 
-    pass
+def get_all_trips():
+    
+    trips = Trip.query.order_by(
+        Trip.departure_time.desc()
+    ).all()
+
+    return [trip.to_dict() for trip in trips]
+
+
+def update_trip_status(trip_id, new_status):
+
+    trip = Trip.query.get(trip_id)
+    
+    if not trip:
+        return None, 'trip not found'
+        
+    allowed_statuses = ['SCHEDULED', 'CANCELLED', 'COMPLETED', 'IN_PROGRESS']
+
+    if new_status not in allowed_statuses:
+        return None, f"invalid status. Must be one of: {', '.join(allowed_statuses) }"
+
+    trip.status = new_status
+    
+    try:
+
+        db.session.commit()
+
+    except Exception as e:
+
+        db.session.rollback()
+        return None, "DB error while updating trip"
+
+    return trip, None
+
+
+def delete_trip(trip_id):
+    trip = Trip.query.get(trip_id)
+    
+    if not trip:
+        return False, "trip not found"
+
+    try:
+
+        db.session.delete(trip)
+        db.session.commit()
+
+    except Exception as e:
+
+        db.session.rollback()
+        
+        return False, "DB error while deleting trip"
+
+    return True, None
