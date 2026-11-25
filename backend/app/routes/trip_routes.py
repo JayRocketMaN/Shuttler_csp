@@ -2,7 +2,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from app.utils.decorators import role_required
-from app.services.trip_service import create_new_trip, search_trips
+from app.services.trip_service import create_new_trip, search_trips, get_all_trips, update_trip_details, delete_trip
 
 trip_bp = Blueprint('trip', __name__, url_prefix = '/api/v1/trips')
 
@@ -52,5 +52,56 @@ def search_for_trips():
     }), 200
 
 
+@trip_bp.route('/', methods = ['GET'])
+@jwt_required()
+@role_required('admin')
+def get_trips():
+    trips = get_all_trips()
 
+    return jsonify({
+        "count": len(trips),
+        "trips": trips
+    }), 200
+
+
+@trip_bp.route('/<int:trip_id>', methods = ['PATCH'])
+@jwt_required()
+@role_required('admin')
+def update_status(trip_id):
+
+    data = request.get_json()
+    if not data:
+        return jsonify({
+            "error": "no update data provided"
+        }), 400
+
+
+    trip, error = update_trip_details(trip_id, data)
+
+    if error:
+        return jsonify({
+            "error": error
+        }), 404 if "not found" in error else 400
+
+    return jsonify({
+        "message": "success updating trip",
+        "trip": trip.to_dict()
+    }), 200
+
+
+@trip_bp.route('/<int:trip_id>', methods = ['DELETE'])
+@jwt_required()
+@role_required('admin')
+def delete_trip_route(trip_id):
+
+    success, error = delete_trip(trip_id)
+
+    if error:
+        return jsonify({
+            "error": error
+        }), 404
+
+    return jsonify({
+        "message": "trip deleted successfully"
+    }), 200
 

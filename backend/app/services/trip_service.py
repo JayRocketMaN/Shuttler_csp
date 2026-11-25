@@ -140,4 +140,109 @@ def search_trips(pickup_name, dropoff_name):
     return results
 
 
-    pass
+
+def get_all_trips():
+    
+    trips = Trip.query.order_by(
+        Trip.departure_time.desc()
+    ).all()
+
+    return [trip.to_dict() for trip in trips]
+
+
+
+def update_trip_details(trip_id, data):
+
+    trip = Trip.query.get(trip_id)
+    
+    if not trip:
+        return None, 'trip not found'
+
+    if 'status' in data:
+        new_status = data['status']
+
+        if isinstance(new_status, dict):      # extracting status string frm dict
+            new_status = new_status.get('status')
+
+        allowed_statuses = ['SCHEDULED', 'CANCELLED', 'COMPLETED', 'IN_PROGRESS']
+
+        if new_status not in allowed_statuses:
+            return None, f"invalid status, let it be one of: {', '.join(allowed_statuses) }"
+
+        trip.status = new_status
+
+    # handling possible update conflict, incase driver or vehicle was already assined at the same time
+    new_driver_id = data.get('driver_id', trip.driver_id)
+    new_vehicle_id = data.get('vehicle_id', trip.vehicle_id)
+    new_time_str = data.get('departure_time')
+
+    if new_time_str:    # fixing time conflict incase there be one
+        try:
+            new_time = datetime.fromisoformat(new_time_str)
+        except ValueError:
+            return None, "invalid date format, please use YYYY-MM-DDTHH:MM:SS"
+    else:
+        new_time = trip.departure_time
+
+        # fixing driver conflict incase there be one, let's say if driver, vehicle or time is changing then we have to check to ensure it does not overlap with another trip which has already been scheduled
+    if new_driver_id != trip.driver_id or new_vehicle_id != trip.vehicle_id or new_time != trip.departure_time:
+        time_window_start = new_time - timedelta(hours = 1)
+        time_window_end = new_time + timedelta(hours = 1)
+
+        vehicle_conflict = Trip.query.filter(   # checkx vehicel conflix except for this trip
+            Trip.vehicle_id == new_vehicle_id,
+            Trip.id != trip.id, 
+            Trip.departure_time >= time_window_start,
+            Trip.departure_time <= time_window_end
+        ).first()
+
+        if vehicle_conflict:
+            return None, "this vehicle has already been schedule for another trip around this time"
+
+        driver_conflict = Trip.query.filter(  # checkx driver conflix except for this trip
+            Trip.driver_id == new_driver_id,
+            Trip.id != trip.id,
+            Trip.departure_time >= time_window_start,
+            Trip.departure_time <= time_window_end
+        ).first()
+
+        if driver_conflict:
+            return None, "this driver has already been schedule for another trip around this time"
+
+        
+        trip.driver_id = new_driver_id
+        trip.vehicle_id = new_vehicle_id
+        trip.departure_time = new_time
+    
+    try:
+
+        db.session.commit()
+
+    except Exception as e:
+
+        db.session.rollback()
+        print('DB Error: ', e)
+        return None, "DB error while updating trip"
+
+    return trip, None
+
+
+
+def delete_trip(trip_id):
+    trip = Trip.query.get(trip_id)
+    
+    if not trip:
+        return False, "trip not found"
+
+    try:
+
+        db.session.delete(trip)
+        db.session.commit()
+
+    except Exception as e:
+
+        db.session.rollback()
+
+        return False, "DB error while deleting trip"
+
+    return True, None
